@@ -305,21 +305,22 @@ That's it. You've made a database table. Let's do the same for the detail expens
       year = models.IntegerField()
       quarter = models.IntegerField()
 
-    class Detail(models.Model):
-        bioguide_id = models.CharField(max_length=7)
-        office = models.CharField(max_length=500)
-        quarter = models.IntegerField()
-        program = models.CharField(max_length=500)
-        category = models.CharField(max_length=500)
-        sort_sequence = models.CharField(max_length=500)
-        date = models.DateField()
-        transcode = models.CharField(max_length=15)
-        recordid = models.IntegerField()
-        start_date = models.DateField()
-        end_date = models.DateField()
-        purpose = models.CharField(max_length=500)
-        amount = models.DecimalField(max_digits=20, decimal_places=2)
-        year = models.IntegerField()
+  class Detail(models.Model):
+      bioguide_id = models.CharField(max_length=7)
+      office = models.CharField(max_length=500)
+      quarter = models.CharField(max_length=1)
+      program = models.CharField(max_length=500)
+      category = models.CharField(max_length=500)
+      sort_sequence = models.CharField(max_length=500)
+      date = models.DateField(blank=True, null=True)
+      transcode = models.CharField(max_length=15)
+      recordid = models.CharField(max_length=500, blank=True, null=True)
+      payee = models.CharField(max_length=500)
+      start_date = models.DateField(blank=True, null=True)
+      end_date = models.DateField(blank=True, null=True)
+      purpose = models.CharField(max_length=500)
+      amount = models.DecimalField(max_digits=20, decimal_places=2)
+      year = models.IntegerField()
 
 Make sure to save your ``models.py`` file. Then we'll ``manage.py`` to prepare the changes necessary to create your new model.
 
@@ -528,6 +529,41 @@ Run it again and you've done it. The data from the summary CSV is loaded into th
 
 You can do the same for the detail file - the same steps, creating a ``load_detail.py`` file in the ``management/commands`` directory the same way you did for the summary file, along with the code to load the CSV.
 
+.. code-block:: python
+  :emphasize-lines: 2,9,21
+
+  import csv
+  from expenses.models import Detail
+  from django.core.management.base import BaseCommand
+
+  class Command(BaseCommand):
+
+      def handle(self, *args, **options):
+          print("Loading CSV")
+          csv_path = "./detail.csv"
+          csv_file = open(csv_path, 'r')
+          csv_reader = csv.DictReader(csv_file)
+          for row in csv_reader:
+              obj = Detail.objects.create(
+                  bioguide_id=row['BIOGUIDE_ID'],
+                  office=row['OFFICE'],
+                  quarter=row['QUARTER'],
+                  program=row['PROGRAM'],
+                  category=row['CATEGORY'],
+                  sort_sequence=row['SORT SEQUENCE'],
+                  date=row.get('DATE') or None,
+                  transcode=row['TRANSCODE'],
+                  recordid=row['RECORDID'].strip(),
+                  payee=row['PAYEE'],
+                  start_date=row.get('START DATE') or None,
+                  end_date=row.get('END DATE') or None,
+                  purpose=row['PURPOSE'],
+                  amount=row['AMOUNT'],
+                  year=row['YEAR']
+              )
+              print(obj)
+
+Note how for the date fields we're using a specific syntax that tries to grab the value for that key and if there's any problem (such as an empty string instead of a date) we just use ``None`` instead.
 
 Act 4: Hello admin
 ------------------
@@ -557,15 +593,15 @@ Adding panels for your own models is done in the ``admin.py`` file included with
 .. code-block:: python
 
   from django.contrib import admin
-  from academy.models import Invite
+  from expenses.models import Summary
 
-  admin.site.register(Invite)
+  admin.site.register(Summary)
 
 Now reload `localhost:8000/admin/ <http://localhost:8000/admin/>`_ and you'll see it added to the index app list.
 
 .. image:: /_static/hello-admin-module.png
 
-Click on "Invite" and you'll see all the records we loaded into the database as a list.
+Click on "Summarys" and you'll see all the records we loaded into the database as a list.
 
 .. image:: /_static/hello-admin-list.png
 
@@ -575,12 +611,12 @@ Configure the columns that appear in the list.
   :emphasize-lines: 4-7
 
   from django.contrib import admin
-  from academy.models import Invite
+  from expenses.models import Summary
 
-  class InviteAdmin(admin.ModelAdmin):
-      list_display = ("name", "branch", "gender", "date_of_birth", "race")
+  class SummaryAdmin(admin.ModelAdmin):
+      list_display = ("office", "program", "category", "amount")
 
-  admin.site.register(Invite, InviteAdmin)
+  admin.site.register(Summary, SummaryAdmin)
 
 Reload.
 
@@ -592,13 +628,13 @@ Add a filter.
   :emphasize-lines: 6
 
   from django.contrib import admin
-  from academy.models import Invite
+  from expenses.models import Summary
 
-  class InviteAdmin(admin.ModelAdmin):
-      list_display = ("name", "branch", "gender", "date_of_birth", "race")
-      list_filter = ("branch", "gender", "race")
+  class SummaryAdmin(admin.ModelAdmin):
+      list_display = ("office", "program", "category", "amount")
+      list_filter = ("category", "program")
 
-  admin.site.register(Invite, InviteAdmin)
+  admin.site.register(Summary, SummaryAdmin)
 
 Reload.
 
@@ -610,316 +646,84 @@ And now a search.
   :emphasize-lines: 7
 
   from django.contrib import admin
-  from academy.models import Invite
+  from expenses.models import Summary
 
-  class InviteAdmin(admin.ModelAdmin):
-      list_display = ("name", "branch", "gender", "date_of_birth", "race")
-      list_filter = ("branch", "gender", "race")
-      search_fields = ("name",)
+  class SummaryAdmin(admin.ModelAdmin):
+      list_display = ("office", "program", "category", "amount")
+      list_filter = ("category", "program")
+      search_fields = ("program",)
 
-  admin.site.register(Invite, InviteAdmin)
+  admin.site.register(Summary, SummaryAdmin)
 
 Reload.
 
 .. image:: /_static/hello-admin-search.png
 
-Take a moment to search, filter and sort the list to see how things work. You can even fill in a few records if you want to give that a spin.
+Take a moment to search, filter and sort the list to see how things work. Now we can add a similar admin for the ``Detail`` objects:
 
-Act 5: Hello newsroom
+.. code-block:: python
+  :emphasize-lines: 2, 8-11, 13
+
+  from django.contrib import admin
+  from expenses.models import Summary, Detail
+
+  class SummaryAdmin(admin.ModelAdmin):
+      list_display = ("office", "program", "category", "amount")
+      list_filter = ("category", "program")
+      search_fields = ("program",)
+
+  class DetailAdmin(admin.ModelAdmin):
+      list_display = ("office", "program", "category", "payee", "purpose", "amount")
+      list_filter = ("category", "program", "purpose")
+      search_fields = ("program", "payee")
+
+  admin.site.register(Summary, SummaryAdmin)
+  admin.site.register(Detail, DetailAdmin)
+
+
+Act 5: Hello Views
 ---------------------
 
-Now you're ready to get other people involved. The first thing to do is create additional users for your colleagues. Return to `localhost:8000/admin/ <http://localhost:8000/admin/>`_ and click the plus button to the right of the "Users" link.
+Now you're ready to show your data to people who can't (and shouldn't) login to your Django app. We do that using ``views``, which are invoked when a specific URL is loaded.
 
-.. image:: /_static/hello-newsroom-userlink.png
-
-Name a user.
-
-.. image:: /_static/hello-newsroom-nameuser.png
-
-When filling in their profile, be **certain** to click on the "staff status" checkbox that gives users authorization to access the admin.
-
-.. image:: /_static/hello-newsroom-staffstatus.png
-
-Lower down, choose which permissions to give this user. In this example, since the source data are already loaded the reporter will only have authorization to edit records, not create or delete them.
-
-.. image:: /_static/hello-newsroom-permissions.png
-
-We're getting close. One problem, though. That ``localhost`` address we've been using isn't on the Internet. It only exists on your machine.
-
-There are numerous ways to deploy your Django application so other people can access it. You could use the `Apache <https://docs.djangoproject.com/en/4.0/howto/deployment/>`_ webserver. You could try a cloud service like `Heroku <https://devcenter.heroku.com/articles/getting-started-with-django>`_.
-
-But if all you need is for other people inside your office network (often referred to as an "Intranet") to log in, here's a simple trick that will work in most cases.
-
-Return to your command line, hit ``CTRL-C`` and try this.
-
-.. code-block:: bash
-
-      $ python manage.py runserver 0.0.0.0:8000
-
-Now all you need to do is find your computer's IP address and others in your office will soon be able to access it. The method varies depending on your operating system. Good instructions are `available here <http://home.huck.psu.edu/it/how-to/how-to-ip-address>`_. Though it mostly boils down to opening a new command line terminal and typing in one of the following.
-
-.. code-block:: bash
-
-  # In OSX or Linux
-  $ ifconfig
-  # In Windows
-  $ ipconfig
-
-Then within the code that comes out you'll see a series of numbers formatted something like 172.19.131.101 after a label like "inet" or "IPv4 Address".
-
-Copy and paste that into your clipboard. Open up the ``settings.py`` file and add it, along with localhost, to the empty ``ALLOWED_HOSTS`` setting. This list controls what web addresses are able to access your database.
+Open expenses/views.py and put the following code in it:
 
 .. code-block:: python
 
-    ALLOWED_HOSTS = [
-        'localhost',
-        '192.168.1.79',
-    ]
+  from django.http import HttpResponse
 
-Save that file and then go to your browser and paste that same IP address into a pattern like `http://xxx.xx.xxx.xx:8000/admin/ <http://XXX.YY.ZZZ.QQ:8000/admin/>`_ and see what happens. If your Django site appears, you're off to a good start.
+  def index(request):
+    return HttpResponse("Hello, world. You're at the expenses index.")
 
-Now visit your colleagues' computers across the newsroom and if the same address works. If it does, you're ready to roll.
-
-.. image:: /_static/hello-newsroom-permissions.png
-
-Now as long as the runserver command is up and running back at your computer, your data entry website is online. Congratulations!
-
-
-Act 6: Hello homework
----------------------
-
-There are two constants in this kind of work: 1) Your models will change. 2) Reporters need to be told what to do.
-
-With that in mind, let's alter our model so we have a place for a reporter's name. Then we will assign each invitee to a reporter to finish.
-
-First, let's add a character field and some choices for the reporter's name. Open your ``models.py`` file and add them.
+This is the simplest view we can write. When that view is triggered, it will return that text to the browser just as it is. But we need to tie it to a specific url. For that we can create a new file in the expenses directory called ``urls.py`` and add the following code to it:
 
 .. code-block:: python
-  :emphasize-lines: 33-43
 
-  from django.db import models
+  from django.urls import path
 
-  # Create your models here.
-  class Invite(models.Model):
-      name = models.CharField(max_length=500)
-      branch = models.CharField(max_length=500)
-      GENDER_CHOICES = (
-        ("M", "Male"),
-        ("F", "Female"),
-        ("O", "Other"),
-        ("?", "Unknown")
-      )
-      gender = models.CharField(
-          max_length=1,
-          choices=GENDER_CHOICES,
-          default="?"
-      )
-      date_of_birth = models.DateField(null=True, blank=True)
-      RACE_CHOICES = (
-          ("ASIAN", "Asian"),
-          ("BLACK", "Black"),
-          ("LATINO", "Latino"),
-          ("WHITE", "White"),
-          ("OTHER", "Other"),
-          ("?", "Unknown"),
-      )
-      race = models.CharField(
-          max_length=10,
-          choices=RACE_CHOICES,
-          default="?"
-      )
-      notes = models.TextField(blank=True)
-      REPORTER_CHOICES = (
-          ("lois-lane", "Lois Lane"),
-          ("clark-kent", "Clark Kent"),
-          ("jimmy-olson", "Jimmy Olson")
-      )
-      reporter = models.CharField(
-          max_length=255,
-          choices=REPORTER_CHOICES,
-          blank=True
-      )
+  from . import views
 
-Great. Save it and let's run:
+  urlpatterns = [
+    path('', views.index, name='index'),
+  ]
 
-.. code-block:: bash
+This first imports a function that helps Django connect urls to views. It then imports the contents of our views.py file and finally defines a pattern: if a user goes to the root url, that means that the ``index`` view gets called. All of that occurs in project/expenses/urls.py.
 
-  $ python manage.py runserver
-
-Now go to `http://localhost:8000/admin/ <http://localhost:8000/admin/>`_ and click on 'Invites.' You should see this:
-
-.. image:: /_static/hello-newsroom-nomigrationerror.png
-
-Uh oh. What happened? Well, in Django parlance, we are missing a migration. While your ``models.py`` file describes your database tables, simply changing the file won't change your database. Django needs some instructions on how to create, delete or migrate fields in an explicit way. This is where migrations come in. Migrations explain how to modify your database, including the ability to "roll back" your database tables to a previous state.
-
-Thankfully, in newer versions of Django, this feature is built in. Kill your ``runserver`` by hitting ``ctrl-c``, and run a command:
-
-.. code-block:: bash
-
-  # Create a migration
-  $ python manage.py makemigrations academy
-
-This creates a file that says we want to add a reporter field to our database.  Let's check to see what we did. List the contents of ``academy/migrations/``
-
-.. code-block:: bash
-
-  # In OSX or Linux
-  $ ls academy/migrations/
-  # In Windows
-  $ dir academy/migrations
-
-You should see that there are two migration files there: ``0001_initial.py`` and ``0002_invite_reporter.py``. When you created your table before, you ran the ``makemigrations`` command as well, which created the initial file. Every time you make a migration, Django will add another file to this folder.
-
-.. note::
-
-  If you're using ``git`` to track your project, it's important to add these migrations to your git repository. Otherwise people collaborating with you won't know what changes you have made to the database.
-
-Now we have to apply the migration. Your changes won't be applied to the database until you run ``migrate``, so let's do that now
-
-.. code-block:: bash
-
-  # Actually apply the migrations
-  $ python manage.py migrate academy
-
-Excellent. Run your server and check out an invite now. You should see a dropdown like this:
-
-.. image:: /_static/hello-newsroom-reporter.png
-
-Wouldn't it be great if you could see this information at a glance, though? Pop open your ``admin.py`` file and let's do just that. We will add "reporter" to the end of our ``list_display`` list.
+But we have more urls for our project, including the admin urls. Check out the ``urls.py`` in the project/project directory, and add this to it:
 
 .. code-block:: python
-  :emphasize-lines: 5
+  :emphasize-lines: 3,6
 
   from django.contrib import admin
-  from academy.models import Invite
+  from django.urls import include, path
 
-  class InviteAdmin(admin.ModelAdmin):
-      list_display = ("name", "branch", "gender", "date_of_birth", "race", "reporter",)
-      list_filter = ("branch", "gender", "race",)
-      search_fields = ("name",)
+  urlpatterns = [
+    path('expenses/', include('expenses.urls')),
+    path('admin/', admin.site.urls),
+  ]
 
-  admin.site.register(Invite, InviteAdmin)
+This ``urls.py`` organizes _all_ of the urls we could have for this entire project (we might decide to get expansive and include other congressional data). We _include_ the url we defined that is specific to the expenses app.
 
-Now fire up your runserver again and check out the invite list:
+Now go to http://127.0.0.1:8000/expenses/
 
-.. image:: /_static/hello-newsroom-nones.png
-
-That's a whole lot of blanks though, and do you really want to go into each page and select the name from a dropdown to assign it? No, you do not. Let's make one quick change to the ``admin.py`` file to speed this up. We are going to use a feature called ``list_editable`` to make changes directly from the invite list:
-
-.. code-block:: python
-  :emphasize-lines: 7
-
-  from django.contrib import admin
-  from academy.models import Invite
-
-  class InviteAdmin(admin.ModelAdmin):
-      list_display = ("name", "branch", "gender", "date_of_birth", "race", "reporter",)
-      list_filter = ("branch", "gender", "race",)
-      list_editable = ("reporter",)
-      search_fields = ("name",)
-
-  admin.site.register(Invite, InviteAdmin)
-
-Ready? Save the file and open up the invite list again.
-
-.. image:: /_static/hello-newsroom-list-editable.png
-
-Now you can edit the reporter field directly from the admin list! Select a few reporters from a few dropdowns and then scroll to the bottom of the page and hit Save. Congratulations, you've just doled out some work.
-
-The admin's ``list_editable`` is a powerful little option that lets you do a lot of work in a little time. When you've assigned enough people, you can turn the feature back off by removing or commenting out the ``list_editable`` line in the admin.
-
-If you want to go further and filter by reporter so, for example, you could see all of Jimmy Olson's assignments at a glance, simply add "reporter" to the ``list_filter`` list.
-
-.. code-block:: python
-  :emphasize-lines: 6
-
-  from django.contrib import admin
-  from academy.models import Invite
-
-  class InviteAdmin(admin.ModelAdmin):
-      list_display = ("name", "branch", "gender", "date_of_birth", "race", "reporter",)
-      list_filter = ("branch", "gender", "race", "reporter",)
-      list_editable = ("reporter",)
-      search_fields = ("name",)
-
-  admin.site.register(Invite, InviteAdmin)
-
-
-Epilogue: Hello dumper
-----------------------
-
-Alright, so let's assume you work with some industrious reporters. They roll through all the records and you've got the gender, race and age entered for everybody in the database.
-
-Here's how you can get the data back out as a CSV. We'll start by creating a new management command much like the one we made for the loader.
-
-.. code-block:: bash
-
-  # Mac or Linux
-  $ touch academy/management/commands/dumpacademycsv.py
-  # Windows
-  $ start notepad++ academy/management/commands/dumpacademycsv.py
-
-Open it up and paste in the barebones of a management command.
-
-.. code-block:: python
-
-  from django.core.management.base import BaseCommand
-
-  class Command(BaseCommand):
-
-      def handle(self, *args, **options):
-          print("Dumping CSV")
-
-Import our Invite model and create a loop that runs through all the records
-and prints out each field.
-
-.. code-block:: python
-  :emphasize-lines: 1,8-10
-
-  from academy.models import Invite
-  from django.core.management.base import BaseCommand
-
-  class Command(BaseCommand):
-
-      def handle(self, *args, **options):
-          print "Dumping CSV"
-          for obj in Invite.objects.all():
-              row = [obj.name, obj.branch, obj.gender, obj.date_of_birth, obj.race, obj.notes, obj.reporter]
-              print(row)
-
-Save the file and run the command. You should see all the data printed out in lists.
-
-.. code-block:: python
-
-  $ python manage.py dumpacademycsv
-
-Now introduce the csv module to output those rows to a new file.
-
-.. code-block:: python
-  :emphasize-lines: 1-3,11-14,17
-
-  import os
-  import csv
-  from django.conf import settings
-  from academy.models import Invite
-  from django.core.management.base import BaseCommand
-
-  class Command(BaseCommand):
-
-      def handle(self, *args, **options):
-          print "Dumping CSV"
-          csv_path = os.path.join(settings.BASE_DIR, "dump.csv")
-          csv_file = open(csv_path, 'w')
-          csv_writer = csv.writer(csv_file)
-          csv_writer.writerow(['name', 'branch', 'gender', 'date_of_birth', 'race', 'notes', 'reporter'])
-          for obj in Invite.objects.all():
-              row = [obj.name, obj.branch, obj.gender, obj.date_of_birth, obj.race, obj.notes, obj.reporter]
-              csv_writer.writerow(row)
-
-Run our new command once more.
-
-.. code-block:: python
-
-  $ python manage.py dumpacademycsv
-
-Now open up ``dump.csv`` in your base directory and your export should be good to go.
+.. image:: /_static/hello-expenses.png
