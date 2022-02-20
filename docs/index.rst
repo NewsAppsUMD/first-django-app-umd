@@ -1,6 +1,6 @@
 :tocdepth: 2
 
-First Django admin
+First Django App
 ==================
 
 A step-by-step guide to creating a simple web application that displays House office expenditure data.
@@ -11,9 +11,6 @@ What you will make
 ------------------
 
 This tutorial will guide you through creating a custom Django app displaying information about `official House office expenditures <https://www.house.gov/the-house-explained/open-government/statement-of-disbursements>`_.
-
-.. image:: /_static/hello-admin-filter.png
-
 
 About the authors
 -----------------
@@ -147,7 +144,7 @@ we'll use to put together our website.
 
     $ pipenv install Django
 
-Now use Django's ``django-admin`` command to create a new "project" that will be organized according to the framework's rules.
+Now use Django's ``django-admin`` command to create a new project that will be organized according to the framework's rules. We'll creatively call it "project".
 
 .. code-block:: bash
 
