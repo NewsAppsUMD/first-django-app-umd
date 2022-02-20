@@ -43,8 +43,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'First Django Admin'
-copyright = u'2015, Investigative Reporters and Editors'
+project = u'First Django App'
+copyright = u'2022, Derek Willis'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
