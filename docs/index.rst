@@ -747,3 +747,14 @@ First, create a directory called templates in your expenses directory. Django wi
 Within the templates directory you have just created, create another directory called expenses, and within that create a file called index.html. In other words, your template should be at expenses/templates/expenses/index.html. Because of how the app_directories template loader works, you can refer to this template within Django as expenses/index.html.
 
 Put the following code in that template:
+
+.. code-block:: html
+
+  <html>
+    <head></head>
+    <body>
+      <h1>House Office Expenses</h1>
+    </body>
+  </html>
+
+Now we need to tell the index view in views.py to use this template.
