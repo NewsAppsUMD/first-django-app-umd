@@ -845,4 +845,30 @@ That `<Summary: Summary object (1)>` line isn't helpful, however. We can fix tha
       def __str__(self):
           return self.payee
 
-It’s important to add __str__() methods to your models, not only for your own convenience when dealing with the interactive prompt, but also because objects’ representations are used throughout Django’s automatically-generated admin. Now, if you exit the Django shell and repeat the steps above, you'll see a better representation of each object.
+It’s important to add __str__() methods to your models, not only for your own convenience when dealing with the interactive prompt, but also because objects’ representations are used throughout Django’s automatically-generated admin. Now, if you exit the Django shell and repeat the steps above, you'll see a better representation of each object:
+
+.. code-block:: python
+  :emphasize-lines: 5,8
+
+  >>> from expenses.models import Summary, Detail
+  >>> summary = Summary.objects.all()[0]
+  >>> summary
+  <Summary: SUPPLIES AND MATERIALS>
+  >>> detail = Detail.objects.all()[0]
+  >>> detail
+  <Detail: OCCASIONS CATERERS>
+
+Using ``Model.objects.all()`` isn't great, though, because it pulls in every row in the database. It's more likely that we'll want to retrieve specific records, and Django has a way to do that:
+
+.. code-block:: python
+  :emphasize-lines: 3,6-8
+
+  >>> from expenses.models import Summary, Detail
+  >>> summary = Summary.objects.get(id=1)
+  >>> summary
+  <Summary: SUPPLIES AND MATERIALS>
+  >>> details = Detail.objects.filter(payee="OCCASIONS CATERERS")
+  >>> details
+  <QuerySet [<Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>]>
+
+The get() function returns a single record and filter() returns a list (called a QuerySet in Django) of records that you can iterate over.
