@@ -872,3 +872,59 @@ Using ``Model.objects.all()`` isn't great, though, because it pulls in every row
   <QuerySet [<Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>, <Detail: OCCASIONS CATERERS>]>
 
 The get() function returns a single record and filter() returns a list (called a QuerySet in Django) of records that you can iterate over.
+
+You can even create new objects using the Django API. Now let's get back to writing more views and templates.
+
+Act 7: More Advanced Views
+--------------------------
+
+We have an index page for our app, but what about pages for displaying individual records? Let's create a view for an individual Summary object in our views.py file:
+
+.. code-block:: python
+  :emphasize-lines: 2,10-12
+
+  from django.shortcuts import render, get_object_or_404
+  from expenses.models import Summary, Detail
+
+  def index(request):
+    total_summaries = Summary.objects.count()
+    total_detail = Detail.objects.count()
+    return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+
+  def summary(request, summary_id):
+    summary = Summary.objects.get(id=summary_id)
+    return render(request, 'expenses/summary.html', {'summary': summary})
+
+This will do a simple lookup based on a numeric id for a Summary object, which is provided from the request's URL. That means we'll need to design a url in urls.py for this:
+
+.. code-block:: python
+  :emphasize-lines: 8-9
+
+  from django.urls import path
+
+  from . import views
+
+  urlpatterns = [
+    path('', views.index, name='index'),
+    # example: /summary/1/
+    path('summary/<int:summary_id>/', views.summary, name='summary'),
+  ]
+
+That connects a URL in the form of /summary/1/ to the summary function in views.py. Then we'll need a template to handle that, so let's add a `summary.html` file to our templates/expenses/ directory and populate it with this:
+
+.. code-block:: html
+
+    <!doctype html>
+    <html lang="en">
+        <head></head>
+        <body>
+            <h1>Summary Record for {{ summary.year }}, Quarter {{ summary.quarter }}</h1>
+            <p>Program: {{ summary.program }}</p>
+            <p>Category: {{ summary.category }}</p>
+            <p>Office: {{ summary.office }}</p>
+            <p>Amount: {{ summary.amount }}</p>
+            <p>Year To Date: {{ summary.year_to_date }}</p>
+        </body>
+    </html>
+
+Save that and head to http://127.0.0.1:8000/expenses/summary/1/.
