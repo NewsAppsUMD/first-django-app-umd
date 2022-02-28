@@ -750,11 +750,99 @@ Put the following code in that template:
 
 .. code-block:: html
 
-  <html>
+  <!doctype html>
+  <html lang="en">
     <head></head>
     <body>
       <h1>House Office Expenses</h1>
     </body>
   </html>
 
-Now we need to tell the index view in views.py to use this template.
+Now we need to tell the index view in views.py to use this template. Open expenses/views.py and put the following code in it:
+
+.. code-block:: python
+  :emphasize-lines: 2,8
+
+  from django.shortcuts import render
+  from expenses.models import Summary, Detail
+
+  def index(request):
+    total_summaries = Summary.objects.count()
+    total_detail = Detail.objects.count()
+    return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+
+Here we are using Django's `render` shortcut to send all the information we need to the template we made, including how to refer to the objects we've created.
+
+Let's update our template. Open expenses/templates/expenses/index.html and add the following:
+
+.. code-block:: jinja
+  :emphasize-lines: 7
+
+    <!doctype html>
+    <html lang="en">
+        <head></head>
+        <body>
+            <h1>House Office Expenses</h1>
+            <p>There are {{ total_summaries }} total summary records and {{ total_detail }} records.</p>
+        </body>
+    </html>
+
+That's better, and the template engine is similar to that used by Flask (Jinja was inspired by Django's template syntax, in fact).
+
+Next, we'll dive into how to retrieve actual model objects from the database.
+
+Act 6: The Django Model API
+---------------------------
+
+The `python manage.py shell` command gives us access to all of the objects defined in our `models.py` file. Let's fire up that command and explore the data:
+
+.. code-block:: python
+
+  >>> from expenses.models import Summary, Detail
+  >>> summary = Summary.objects.all()[0]
+  >>> summary
+  <Summary: Summary object (1)>
+  >>> summary.program
+  'OFFICIAL EXPENSES - LEADERSHIP'
+
+That `<Summary: Summary object (1)>` line isn't helpful, however. We can fix that back in `models.py` by adding a method to Summary and Detail. Switch to your expenses/models.py and add the following lines:
+
+.. code-block:: python
+  :emphasize-lines: 14-15,34-35
+
+  from django.db import models
+
+  class Summary(models.Model):
+      bioguide_id = models.CharField(max_length=7)
+      office = models.CharField(max_length=500)
+      program = models.CharField(max_length=500)
+      category = models.CharField(max_length=500)
+      year_to_date = models.DecimalField(max_digits=20, decimal_places=2)
+      amount = models.DecimalField(max_digits=20, decimal_places=2)
+      year = models.IntegerField()
+      quarter = models.IntegerField()
+
+      def __str__(self):
+          return self.program
+
+  class Detail(models.Model):
+      bioguide_id = models.CharField(max_length=7)
+      office = models.CharField(max_length=500)
+      quarter = models.CharField(max_length=1)
+      program = models.CharField(max_length=500)
+      category = models.CharField(max_length=500)
+      sort_sequence = models.CharField(max_length=500)
+      date = models.DateField(blank=True, null=True)
+      transcode = models.CharField(max_length=15)
+      recordid = models.CharField(max_length=500, blank=True, null=True)
+      payee = models.CharField(max_length=500)
+      start_date = models.DateField(blank=True, null=True)
+      end_date = models.DateField(blank=True, null=True)
+      purpose = models.CharField(max_length=500)
+      amount = models.DecimalField(max_digits=20, decimal_places=2)
+      year = models.IntegerField()
+
+      def __str__(self):
+          return self.payee
+
+It’s important to add __str__() methods to your models, not only for your own convenience when dealing with the interactive prompt, but also because objects’ representations are used throughout Django’s automatically-generated admin. Now, if you exit the Django shell and repeat the steps above, you'll see a better representation of each object.

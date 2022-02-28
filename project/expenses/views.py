@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from expenses.models import Summary, Detail
 
 def index(request):
-  return HttpResponse("Hello, world. You're at the expenses index.")
+  total_summaries = Summary.objects.count()
+  total_detail = Detail.objects.count()
+  return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
