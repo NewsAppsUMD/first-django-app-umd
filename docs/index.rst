@@ -678,8 +678,8 @@ Take a moment to search, filter and sort the list to see how things work. Now we
   admin.site.register(Detail, DetailAdmin)
 
 
-Act 5: Hello Views
----------------------
+Act 5: Hello Views (and Templates)
+----------------------------------
 
 Now you're ready to show your data to people who can't (and shouldn't) login to your Django app. We do that using ``views``, which are invoked when a specific URL is loaded.
 
@@ -724,3 +724,26 @@ This ``urls.py`` organizes _all_ of the urls we could have for this entire proje
 Now go to http://127.0.0.1:8000/expenses/
 
 .. image:: /_static/hello-expenses.png
+
+Now let's make a better index view, one that tells us a little more about the objects we've saved in our database.
+
+Open expenses/views.py and put the following code in it:
+
+.. code-block:: python
+  :emphasize-lines: 3,6
+
+  from django.http import HttpResponse
+  from expenses.models import Summary, Detail
+
+  def index(request):
+    total_summaries = Summary.objects.count()
+    total_detail = Detail.objects.count()
+    return HttpResponse(f"Hello, world. You're at the expenses index and there are {total_summaries} summary records and {total_detail} records in the database.")
+
+Now go to http://127.0.0.1:8000/expenses/ and see that we've counted the number of summary and detail objects and sent that to the browser, thanks to string interpolation. There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let's use Django's template system to separate the design from Python by creating a template that the view can use.
+
+First, create a directory called templates in your expenses directory. Django will look for templates in there.
+
+Within the templates directory you have just created, create another directory called expenses, and within that create a file called index.html. In other words, your template should be at expenses/templates/expenses/index.html. Because of how the app_directories template loader works, you can refer to this template within Django as expenses/index.html.
+
+Put the following code in that template:
