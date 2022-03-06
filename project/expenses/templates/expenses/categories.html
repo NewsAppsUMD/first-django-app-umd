@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head></head>
+  <body>
+    <h1>House Office Expense Categories</h1>
+
+    {% if categories %}
+      <ul>
+      {% for category in categories %}
+          <li><a href="/categories/{{ category.slug }}/">{{ category.name|title }}</a></li>
+      {% endfor %}
+      </ul>
+    {% else %}
+        <p>No categories are available.</p>
+    {% endif %}
+
+  </body>
+</html>

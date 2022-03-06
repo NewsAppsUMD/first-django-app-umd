@@ -1,5 +1,12 @@
 from django.db import models
 
+class Category(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
 class Summary(models.Model):
     bioguide_id = models.CharField(max_length=7)
     office = models.CharField(max_length=500)
