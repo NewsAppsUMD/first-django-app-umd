@@ -928,3 +928,22 @@ That connects a URL in the form of /summary/1/ to the summary function in views.
     </html>
 
 Save that and head to http://127.0.0.1:8000/expenses/summary/1/.
+
+Act 8: Models and Slugs
+-----------------------
+
+While the URL above is useful, it's not particularly informative, and part of Django's core philosophy is meaningful URLs. In order to demonstrate this, let's create a new model for category, an attribute of both the Summary and Detail models. Put this at the top of your expenses/models.py file:
+
+.. code-block:: python
+    :emphasize-lines: 4-9
+
+    from django.db import models
+
+    class Category(models.Model):
+        name = models.CharField(max_length=200, unique=True)
+        slug = models.SlugField(max_length=200)
+
+        def __str__(self):
+            return self.name
+
+There are two new things here. First is the "unique=True" constraint we're putting on the category name. That means that only want one record for each category name. Django will enforce that when we add data. Second is the SlugField, which is a handy Django convention based on the idea of a story slug. Essentially it's a lowercased version of the name with punctuation removed and spaces replaced by dashes.
