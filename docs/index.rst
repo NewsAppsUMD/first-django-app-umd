@@ -946,4 +946,61 @@ While the URL above is useful, it's not particularly informative, and part of Dj
         def __str__(self):
             return self.name
 
-There are two new things here. First is the "unique=True" constraint we're putting on the category name. That means that only want one record for each category name. Django will enforce that when we add data. Second is the SlugField, which is a handy Django convention based on the idea of a story slug. Essentially it's a lowercased version of the name with punctuation removed and spaces replaced by dashes.
+There are two new things here. First is the "unique=True" constraint we're putting on the category name. That means that only want one record for each category name. Django will enforce that when we add data. Second is the SlugField, which is a handy Django convention based on the idea of a story slug. Essentially it's a lowercased version of the name with punctuation removed and spaces replaced by dashes. Let's make that migration and run it:
+
+.. code-block:: bash
+
+    $ python manage.py makemigrations expenses
+    $ python manage.py migrate expenses
+
+We'll need to add a loader to populate the Category model with data, and we can use the summary.csv to do that. In expenses/management/commands, create load_category.py and put this in it:
+
+.. code-block:: python
+    :emphasize-lines: 4
+
+    import csv
+    from expenses.models import Category
+    from django.template.defaultfilters import slugify
+    from django.core.management.base import BaseCommand
+
+    class Command(BaseCommand):
+
+        def handle(self, *args, **options):
+            print("Loading CSV")
+            csv_path = "./summary.csv"
+            csv_file = open(csv_path, 'r')
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                if row['CATEGORY'] != '':
+                    obj, created = Category.objects.create(name=row['CATEGORY'], slug=slugify(row['CATEGORY']))
+                    print(obj)
+
+A couple of things to note here: first, we import a Django template filter called slugify that, you guessed it, changes a string into a slug version of itself. Second, we use that slugify function in creating the new object. Now, let's run that loader:
+
+.. code-block:: bash
+
+    $ python manage.py load_category
+
+And we get an error. Specifically, the loader tried to create a Category object that already exists, since these categories appear multiple times in the summary.csv. What we need to do is to create a new object only if that category doesn't already exist, and Django has you covered for that, too. Change the loader to this:
+
+.. code-block:: python
+    :emphasize-lines: 16
+
+    import csv
+    from expenses.models import Category
+    from django.template.defaultfilters import slugify
+    from django.core.management.base import BaseCommand
+
+    class Command(BaseCommand):
+
+        def handle(self, *args, **options):
+            print("Loading CSV")
+            csv_path = "./summary.csv"
+            csv_file = open(csv_path, 'r')
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                if row['CATEGORY'] != '':
+                    obj, created = Category.objects.get_or_create(name=row['CATEGORY'], slug=slugify(row['CATEGORY']))
+                    print(obj)
+
+Now we can run the loader again. 
