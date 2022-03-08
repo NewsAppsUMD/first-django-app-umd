@@ -1011,4 +1011,97 @@ Now we can run the loader again:
 
     $ python manage.py load_category
 
-And this time the loader runs properly and doesn't 
+And this time the loader runs properly and doesn't raise an error. Now we can use the slugs created by the loader in designing urls. In expenses/urls.py, add the following lines:
+
+.. code-block:: python
+    :emphasize-lines: 8-9
+
+    from django.urls import path
+
+    from . import views
+
+    urlpatterns = [
+        path('', views.index, name='index'),
+        path('categories/', views.categories, name='categories'),
+        path('categories/<slug>/', views.category_detail, name='category_detail'),
+        path('summary/<int:summary_id>/', views.summary, name='summary'),
+    ]
+
+This creates URLs for a main page for categories and a detail page for each category, the latter using a slug. Next, in expenses/views.py, add the following:
+
+.. code-block:: python
+    :emphasize-lines: 3, 14-19
+
+    from django.shortcuts import render, get_object_or_404
+    from expenses.models import Summary, Detail, Category
+
+    def index(request):
+      total_summaries = Summary.objects.count()
+      total_detail = Detail.objects.count()
+      return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+
+    def summary(request, summary_id):
+      summary = Summary.objects.get(id=summary_id)
+      return render(request, 'expenses/summary.html', {'summary': summary})
+
+    def categories(request):
+      categories = Category.objects.all().order_by('name')
+      return render(request, 'expenses/categories.html', {'categories': categories})
+
+    def category_detail(request):
+        pass
+
+We'll start with the categories view, which fetches all of our Category objects and returns them to a template. Except we need to make that template, so in expenses/templates/expenses create categories.html and put this inside:
+
+.. code-block:: html
+
+    <!doctype html>
+    <html lang="en">
+      <head></head>
+      <body>
+        <h1>House Office Expense Categories</h1>
+
+        {% if categories %}
+          <ul>
+          {% for category in categories %}
+              <li><a href="/categories/{{ category.slug }}/">{{ category.name }}</a></li>
+          {% endfor %}
+          </ul>
+        {% else %}
+            <p>No categories are available.</p>
+        {% endif %}
+
+      </body>
+    </html>
+
+Here we loop over the list of Category objects and create a link for each one. Now we can check that URL by starting the server:
+
+.. code-block:: bash
+
+    $ python manage.py runserver
+
+And heading to http://127.0.0.1:8000/expenses/categories/ will get you a page listing all of the categories in alphabetical order, along with a link to each. That's pretty good, but the names are in all-caps. We can fix that using one of Django's built-in template tags. In the categories.html template, change this line:
+
+.. code-block:: html
+    :emphasize-lines: 11
+
+    <!doctype html>
+    <html lang="en">
+      <head></head>
+      <body>
+        <h1>House Office Expense Categories</h1>
+
+        {% if categories %}
+          <ul>
+          {% for category in categories %}
+              <li><a href="/categories/{{ category.slug }}/">{{ category.name|title }}</a></li>
+          {% endfor %}
+          </ul>
+        {% else %}
+            <p>No categories are available.</p>
+        {% endif %}
+
+      </body>
+    </html>
+
+That changes each name to be titlecase. Go back to the browser and hit reload to see the results.
