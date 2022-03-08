@@ -1003,4 +1003,12 @@ And we get an error. Specifically, the loader tried to create a Category object 
                     obj, created = Category.objects.get_or_create(name=row['CATEGORY'], slug=slugify(row['CATEGORY']))
                     print(obj)
 
-Now we can run the loader again. 
+Here, instead of Category.objects.create we use Category.objects.get_or_create, which gets an existing record or creates one if it cannot find it (the ``created`` variable is a boolean value indicating if the object is newly created or not).
+
+Now we can run the loader again:
+
+.. code-block:: bash
+
+    $ python manage.py load_category
+
+And this time the loader runs properly and doesn't 
