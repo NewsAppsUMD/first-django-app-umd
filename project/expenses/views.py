@@ -14,5 +14,8 @@ def categories(request):
   categories = Category.objects.all().order_by('name')
   return render(request, 'expenses/categories.html', {'categories': categories})
 
-def category_detail(request):
-    pass
+def category_detail(request, slug):
+  category = get_object_or_404(Category, slug=slug)
+  category_summary = Summary.objects.filter(category=category.name).count()
+  category_detail = Detail.objects.filter(category=category.name).count()
+  return render(request, 'expenses/category_detail.html', {'category': category, 'category_summary': category_summary, 'category_detail': category_detail})

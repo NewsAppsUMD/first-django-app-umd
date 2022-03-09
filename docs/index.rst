@@ -1094,7 +1094,7 @@ And heading to http://127.0.0.1:8000/expenses/categories/ will get you a page li
         {% if categories %}
           <ul>
           {% for category in categories %}
-              <li><a href="/categories/{{ category.slug }}/">{{ category.name|title }}</a></li>
+              <li><a href="{{ category.slug }}/">{{ category.name|title }}</a></li>
           {% endfor %}
           </ul>
         {% else %}
@@ -1104,4 +1104,49 @@ And heading to http://127.0.0.1:8000/expenses/categories/ will get you a page li
       </body>
     </html>
 
-That changes each name to be titlecase. Go back to the browser and hit reload to see the results.
+That changes each name to be titlecase. Go back to the browser and hit reload to see the results. Much better.
+
+Now let's make those category links show something. In your expenses/views.py file, add the following to the category_detail function:
+
+.. code-block:: python
+    :emphasize-lines: 19-23
+
+    from django.shortcuts import render, get_object_or_404
+    from expenses.models import Summary, Detail, Category
+
+    def index(request):
+      total_summaries = Summary.objects.count()
+      total_detail = Detail.objects.count()
+      return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+
+    def summary(request, summary_id):
+      summary = Summary.objects.get(id=summary_id)
+      return render(request, 'expenses/summary.html', {'summary': summary})
+
+    def categories(request):
+      categories = Category.objects.all().order_by('name')
+      return render(request, 'expenses/categories.html', {'categories': categories})
+
+    def category_detail(request, slug):
+      category = get_object_or_404(Category, slug=slug)
+      category_summary = Summary.objects.filter(category=category.name).count()
+      category_detail = Detail.objects.filter(category=category.name).count()
+      return render(request, 'expenses/category_detail.html', {'category': category, 'category_summary': category_summary, 'category_detail': category_detail})
+
+Now create the expenses/category_detail.html template and put the following in it:
+
+.. code-block:: html
+
+    <!doctype html>
+    <html lang="en">
+      <head></head>
+      <body>
+        <h1>House Office Expenses - {{ category.name|title }}</h1>
+
+        <p>Summary records: {{ category_summary }}</p>
+        <p>Detail records: {{ category_detail }}</p>
+
+      </body>
+    </html>
+
+Now fire up the server and go to http://127.0.0.1:8000/expenses/categories/franked-mail/
