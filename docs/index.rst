@@ -1133,7 +1133,7 @@ Now let's make those category links show something. In your expenses/views.py fi
       category_detail = Detail.objects.filter(category=category.name).count()
       return render(request, 'expenses/category_detail.html', {'category': category, 'category_summary': category_summary, 'category_detail': category_detail})
 
-Now create the expenses/category_detail.html template and put the following in it:
+Now create the expenses/templates/expenses/category_detail.html template and put the following in it:
 
 .. code-block:: html
 

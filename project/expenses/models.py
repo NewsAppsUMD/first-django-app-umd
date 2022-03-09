@@ -7,6 +7,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def display_name(self):
+        return self.name.title()
+
 class Summary(models.Model):
     bioguide_id = models.CharField(max_length=7)
     office = models.CharField(max_length=500)
