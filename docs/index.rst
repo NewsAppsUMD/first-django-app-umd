@@ -3,14 +3,14 @@
 First Django App
 ==================
 
-A step-by-step guide to creating a simple web application that displays House office expenditure data.
+A step-by-step guide to creating a simple web application that displays Maryland Notices of Intent to Foreclose by Zip Code data.
 
 You will learn just enough about the `Django <https://www.djangoproject.com/>`_ framework to design database tables, load in data and display it at different URLs based on the data.
 
 What you will make
 ------------------
 
-This tutorial will guide you through creating a custom Django app displaying information about `official House office expenditures <https://www.house.gov/the-house-explained/open-government/statement-of-disbursements>`_.
+This tutorial will guide you through creating a custom Django app displaying information about `Maryland foreclosure notices <https://opendata.maryland.gov/Housing/Maryland-Notices-of-Intent-to-Foreclose-by-Zip-Cod/ftsr-vapt>`_.
 
 About the authors
 -----------------
@@ -23,126 +23,24 @@ Prelude: Prerequisites
 Before you can begin, your computer needs the following tools installed
 and working.
 
-1. A `command-line interface <https://en.wikipedia.org/wiki/Command-line_interface>`_ to interact with your computer
-2. A `text editor <https://en.wikipedia.org/wiki/Text_editor>`_ to work with plain text files
-3. Version 3.8 or higher of the `Python <https://www.python.org/downloads/>`_ programming language
-4. The `pipenv <https://pipenv.pypa.io/en/latest/>`_ package and virtual environment manager for Python
-5. `Git <http://git-scm.com/>`_ version control software and an account at `GitHub.com <http://www.github.com>`_
-
-.. warning::
-
-    Stop and make sure you have all these tools installed and working properly. Otherwise, `you're gonna have a bad time <https://www.youtube.com/watch?v=ynxPshq8ERo>`_.
-
-.. _command-line-prereq:
-
-Command-line interface
-~~~~~~~~~~~~~~~~~~~~~~
-
-Unless something is wrong with your computer, there should be a way to open a window that lets you type in commands. Different operating systems give this tool slightly different names, but they all have some form of it, and there are alternative programs you can install as well.
-
-On Windows you can find the command-line interface by opening the "command prompt." Here are `instructions <https://www.bleepingcomputer.com/tutorials/windows-command-prompt-introduction/>`_. On Apple computers, you open the `"Terminal" application <http://blog.teamtreehouse.com/introduction-to-the-mac-os-x-command-line>`_. Ubuntu Linux comes with a program of the `same name <http://askubuntu.com/questions/38162/what-is-a-terminal-and-how-do-i-open-and-use-it>`_.
-
-
-Text editor
-~~~~~~~~~~~
-
-A program like Microsoft Word, which can do all sorts of text formatting
-such as change the size and color of words, is not what you need. Do not
-try to use it below.
-
-You need a program that works with simple `"plain text"
-files <https://en.wikipedia.org/wiki/Text_file>`__, and is therefore
-capable of editing documents containing Python code, HTML markup and
-other languages without dressing them up by adding anything extra. Such
-programs are easy to find and some of the best ones are free, including
-those below.
-
-For Windows, I recommend installing
-`Notepad++ <https://notepad-plus-plus.org/>`__. For Apple computers, try
-`Atom <https://atom.io/>`__.
-In Ubuntu Linux you can stick with the pre-installed
-`gedit <https://help.ubuntu.com/community/gedit>`__ text editor.
-
-Python
-~~~~~~
-
-Python is a computer programming language, like many others you may have heard of such as Ruby or PHP or Java. It is free and open source. We'll be installing Python 3 in a virtual environment, so it doesn't matter what version you have installed currently.
-
-For Mac
-^^^^^^^
-
-If you are using Mac OSX, Python version 2.7 is probably already installed, but we'll be using Python 3. To install that, we'll be using `Homebrew <https://docs.python-guide.org/starting/install3/osx/#install3-osx>`_.
-
-To install Python via Homebrew, you can run the following code:
-
-.. code-block:: bash
-
-    $ brew install python
-
-.. note::
-
-    You'll note that the example above begins with a "$". You do not need to type this. It is only a generic symbol
-    commonly used by geeks to indicate a piece of code should be run from the command line. On Windows, this prompt could even look quite different, likely starting with a phrase like ``C:\``.
-
-You should see something like this after you hit enter:
-
-.. code-block:: bash
-
-    $ python -V
-    Python 3.9.7
-
-
-For Windows
-^^^^^^^^^^^
-
-Windows people should follow the instructions `here <https://docs.python-guide.org/starting/install3/win/#install3-windows>`_.
-
-.. _command-line-pipenv:
-
-pipenv
-~~~~~~~~~~~~~~~~~~
-
-The `pipenv package manager <https://pipenv.pypa.io/>`_ makes it easy to install open-source libraries that expand what you're able to do with Python. Later, we will use it to install everything needed to create a working web application.
-
-Verify pipenv is installed with the following command:
-
-.. code-block:: bash
-
-    $ pipenv -v
-
-If you get and error, that means you don't have pipenv installed. You can get it by following `these instructions <https://pipenv.pypa.io/en/latest/install/#pragmatic-installation-of-pipenv>`_.
+1. An account at `GitHub.com <http://www.github.com>`_
 
 Act 1: Hello Django
 -------------------
 
-Start at our first-django-app directory.
+Start at our first-django-app-umd directory.
 
 .. code-block:: bash
 
-    $ mkdir first-django-app
-    $ cd first-django-app
+    $ mkdir first-django-app-umd
+    $ cd first-django-app-umd
 
-Create a new development environment with pipenv, specifying the version of python:
-
-.. code-block:: bash
-
-    # You don't have to type the "$" It's just a generic symbol
-    # geeks use to show they're working on the command line.
-    $ pipenv --python=python3
-
-Then activate it (it's like turning on the power):
-
-.. code-block:: bash
-
-    $ pipenv shell
-
-
-Use ``pipenv`` on the command line to install `Django <https://www.djangoproject.com/>`_, a Python "framework"
+Use ``pip`` on the command line to install `Django <https://www.djangoproject.com/>`_, a Python "framework"
 we'll use to put together our website.
 
 .. code-block:: bash
 
-    $ pipenv install Django
+    $ pip install Django
 
 Now use Django's ``django-admin`` command to create a new project that will be organized according to the framework's rules. We'll creatively call it "project".
 
@@ -158,9 +56,9 @@ Now jump into the project and we'll start setting it up.
 
 .. note::
 
-    Run the ``ls`` command (``dir`` on Windows), which lists the files in your current location. Wonder what all those weird files are in your new directory? We'll only need a couple for this tutorial, but you can read about all of them in the `official Django documentation <https://docs.djangoproject.com/en/1.10/intro/tutorial01/#creating-a-project>`_.
+    Run the ``ls`` command, which lists the files in your current location. Wonder what all those weird files are in your new directory? We'll only need a couple for this tutorial, but you can read about all of them in the `official Django documentation <https://docs.djangoproject.com/en/1.10/intro/tutorial01/#creating-a-project>`_.
 
-There is a lot of `configuration <https://docs.djangoproject.com/en/4.0/intro/tutorial02/#database-setup>`_ that could be done at this point, but we're going to advance with all of the Django defaults in place.
+There is a lot of `configuration <https://docs.djangoproject.com/en/4.2/intro/tutorial02/#database-setup>`_ that could be done at this point, but we're going to advance with all of the Django defaults in place.
 
 The first step is creating your database, which will appear as a new `SQLite <https://en.wikipedia.org/wiki/SQLite>`_ file named ``db.sqlite3``.
 
@@ -176,7 +74,7 @@ Fire up Django's built-in web server.
 
     $ python manage.py runserver
 
-Visit `localhost:8000 <http://localhost:8000>`_ in your browser to see Django in action. Here's what you should see.
+You should get a popup window in your codespace that takes you to your browser to see Django in action. Here's what you should see.
 
 .. image:: /_static/hello-django.jpg
 
@@ -187,19 +85,19 @@ Act 2: Hello models
 
 Now we create our app. In Django terms, an app is a collection of files that does something, like publish a blog or store public records. A project, like we made above, collects those apps and organizes them into a working website.
 
-You can create a new app with Django's ``startapp`` command. Since we are aiming to make a list of people invited to join the academy, naming this one isn't too hard.
+You can create a new app with Django's ``startapp`` command. Since we are aiming to make a list of foreclosure notices, naming this one isn't too hard.
 
 Return to your terminal and hit the combination of ``CTRL-C``, which will terminal your test server and return you to the command line. Then use our friend ``manage.py`` to create our app.
 
 .. code-block:: bash
 
-   $ python manage.py startapp expenses
+   $ python manage.py startapp foreclosures
 
-There should now be a new ``expenses`` folder in your project. If you look inside you will see that Django created a series of files common to every app.
+There should now be a new ``foreclosures`` folder in your project. If you look inside you will see that Django created a series of files common to every app.
 
 .. code-block:: txt
 
-  expenses/
+  foreclosures/
       __init__.py
       admin.py
       apps.py
@@ -208,9 +106,9 @@ There should now be a new ``expenses`` folder in your project. If you look insid
       tests.py
       views.py
 
-We will only be using two of them in this tutorial. The file called ``models.py`` is where we will design our database tables. Another called ``admin.py`` is where we will configure the panels where reporters will be able to enrich the source data.
+The file called ``models.py`` is where we will design our database tables. Another called ``admin.py`` is where we will configure the panels where reporters will be able to enrich the source data.
 
-But before we do any of that, we need to configure our project to include our new app. Use your text editor to open the file ``settings.py`` in the ``project`` directory. Add our app, ``academy``, to the ``INSTALLED_APPS`` list you find there.
+But before we do any of that, we need to configure our project to include our new app. Use your code editor to open the file ``settings.py`` in the ``project`` directory. Add our app, ``academy``, to the ``INSTALLED_APPS`` list you find there.
 
 .. code-block:: python
   :emphasize-lines: 8
@@ -222,14 +120,14 @@ But before we do any of that, we need to configure our project to include our ne
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'expenses',
+        'foreclosures',
     )
 
 .. note::
 
     Python, like most programming languages, is very strict. When you add a new word to a list, as we did above, it always needs to be followed by a comma and surrounded by quotes. The indentations are also very stict and need to be consistent from line to line. Also, lines starting with ``#`` or surrounding by `"""` quotes are comments that will not be run as code and are instead there only as documentation.
 
-Next open up the ``models.py`` file in the ``expenses`` app's directory. Here we will use Django's built-in `models <https://docs.djangoproject.com/en/4.0/topics/db/models/>`_ system to design a database table to hold the source data.
+Next open up the ``models.py`` file in the ``foreclosures`` app's directory. Here we will use Django's built-in `models <https://docs.djangoproject.com/en/4.2/topics/db/models/>`_ system to design a database table to hold the source data.
 
 Each table is defined using a Python `class <http://www.learnpython.org/en/Classes_and_Objects>`_ that inherits special powers `from Django <https://docs.djangoproject.com/en/dev/topics/db/models/>`_. Those special powers allow it to synchronize with an underlying database. Our work begins by creating our class and naming it after the data we'll put inside.
 
@@ -239,7 +137,7 @@ Each table is defined using a Python `class <http://www.learnpython.org/en/Class
   from django.db import models
 
   # Create your models here.
-  class Summary(models.Model):
+  class Notice(models.Model):
 
 .. note::
 
@@ -249,7 +147,7 @@ Next, like any good database table, it needs some fields.
 
 If you open `the source CSV <https://github.com/dwillis/first-django-app-umd/blob/master/project/summary.csv>`_, you will see that is has eight columns.
 
-Django has some `fancy tricks <https://docs.djangoproject.com/en/4.0/ref/models/fields/>`_ for defining fields depending on what kind of data they hold. Now we'll use the ``CharField`` to expand our models to hold the bioguide, office, program and category data from our source. It just so happens, that CharFields have a maximum length that must always be set. We're going to pick a couple big numbers for that.
+Django has some `fancy tricks <https://docs.djangoproject.com/en/4.2/ref/models/fields/>`_ for defining fields depending on what kind of data they hold. Now we'll use the ``CharField`` to expand our models to hold the bioguide, office, program and category data from our source. It just so happens, that CharFields have a maximum length that must always be set. We're going to pick a couple big numbers for that.
 
 .. code-block:: python
   :emphasize-lines: 5-6
@@ -257,7 +155,7 @@ Django has some `fancy tricks <https://docs.djangoproject.com/en/4.0/ref/models/
     from django.db import models
 
     # Create your models here.
-    class Summary(models.Model):
+    class Notice(models.Model):
         bioguide_id = models.CharField(max_length=7)
         office = models.CharField(max_length=500)
         program = models.CharField(max_length=500)
@@ -277,13 +175,13 @@ Make sure to save your ``models.py`` file. Then we'll ``manage.py`` to prepare t
 
 .. code-block:: bash
 
-    $ python manage.py makemigrations expenses
+    $ python manage.py makemigrations foreclosures
 
 Now run the ``migrate`` command to execute it.
 
 .. code-block:: bash
 
-    $ python manage.py migrate expenses
+    $ python manage.py migrate foreclosures
 
 That's it. You've made a database table. Let's do the same for the detail expense file. There are a few more fields but many of them are the same as the `Summary` model.
 
@@ -292,7 +190,7 @@ That's it. You've made a database table. Let's do the same for the detail expens
 
   from django.db import models
 
-  class Summary(models.Model):
+  class Notice(models.Model):
       bioguide_id = models.CharField(max_length=7)
       office = models.CharField(max_length=500)
       program = models.CharField(max_length=500)
@@ -323,13 +221,13 @@ Make sure to save your ``models.py`` file. Then we'll ``manage.py`` to prepare t
 
 .. code-block:: bash
 
-    $ python manage.py makemigrations expenses
+    $ python manage.py makemigrations foreclosures
 
 Now run the ``migrate`` command to execute it.
 
 .. code-block:: bash
 
-    $ python manage.py migrate expenses
+    $ python manage.py migrate foreclosures
 
 Now you've made two database tables!
 
@@ -338,31 +236,31 @@ Act 3: Hello loader
 
 Our next challenge is to load the source CSV file into the model.
 
-We are going to do this using Django's system for `management commands <https://docs.djangoproject.com/en/4.0/howto/custom-management-commands/>`_. It allows us to make our own ``manage.py`` commands like ``migrate`` and ``startapp`` that take advantage of Django's bag of tricks and interact with the database.
+We are going to do this using Django's system for `management commands <https://docs.djangoproject.com/en/4.2/howto/custom-management-commands/>`_. It allows us to make our own ``manage.py`` commands like ``migrate`` and ``startapp`` that take advantage of Django's bag of tricks and interact with the database.
 
-To do this, add a ``management/commands`` directory in our expenses app, complete with empty ``__init__.py`` files required by Python. You can do this in your operating system's file explorer, or on the command line. From a Linux or OSX prompt that would look something like this.
+To do this, add a ``management/commands`` directory in our foreclosures app, complete with empty ``__init__.py`` files required by Python. You can do this in your operating system's file explorer, or on the command line. From a Linux or OSX prompt that would look something like this.
 
 .. code-block:: bash
 
   # The -p flag here makes both new directories
-  $ mkdir -p expenses/management/commands
+  $ mkdir -p foreclosures/management/commands
   # This creates the empty files on Macs or in Linux
-  $ touch expenses/management/__init__.py
-  $ touch expenses/management/commands/__init__.py
+  $ touch foreclosures/management/__init__.py
+  $ touch foreclosures/management/commands/__init__.py
 
 From Windows something more like this:
 
 .. code-block:: bash
 
   # If you're in Windows create them with your text editor
-  $ start notepad++ expenses/management/__init__.py
-  $ start notepad++ expenses/management/commands/__init__.py
+  $ start notepad++ foreclosures/management/__init__.py
+  $ start notepad++ foreclosures/management/commands/__init__.py
 
 When you're done the app's directory should look something like this.
 
 .. code-block:: txt
 
-  expenses/
+  foreclosures/
       __init__.py
       admin.py
       apps.py
@@ -380,9 +278,9 @@ Create a new file in the ``management/commands`` directory where the new command
 .. code-block:: bash
 
   # Mac or Linux
-  $ touch expenses/management/commands/load_summary.py
+  $ touch foreclosures/management/commands/load_summary.py
   # Windows
-  $ start notepad++ expenses/management/commands/load_summary.py
+  $ start notepad++ foreclosures/management/commands/load_summary.py
 
 Open it up and paste in the skeleton common to all management commands.
 
@@ -495,7 +393,7 @@ Import our model into the command and use it to save the CSV records to the data
   :emphasize-lines: 2,13-17
 
   import csv
-  from expenses.models import Summary
+  from foreclosures.models import Summary
   from django.core.management.base import BaseCommand
 
   class Command(BaseCommand):
@@ -530,7 +428,7 @@ You can do the same for the detail file - the same steps, creating a ``load_deta
   :emphasize-lines: 2,9,21
 
   import csv
-  from expenses.models import Detail
+  from foreclosures.models import Detail
   from django.core.management.base import BaseCommand
 
   class Command(BaseCommand):
@@ -590,7 +488,7 @@ Adding panels for your own models is done in the ``admin.py`` file included with
 .. code-block:: python
 
   from django.contrib import admin
-  from expenses.models import Summary
+  from foreclosures.models import Summary
 
   admin.site.register(Summary)
 
@@ -608,9 +506,9 @@ Configure the columns that appear in the list.
   :emphasize-lines: 4-7
 
   from django.contrib import admin
-  from expenses.models import Summary
+  from foreclosures.models import Summary
 
-  class SummaryAdmin(admin.ModelAdmin):
+  class NoticeAdmin(admin.ModelAdmin):
       list_display = ("office", "program", "category", "amount")
 
   admin.site.register(Summary, SummaryAdmin)
@@ -625,9 +523,9 @@ Add a filter.
   :emphasize-lines: 6
 
   from django.contrib import admin
-  from expenses.models import Summary
+  from foreclosures.models import Summary
 
-  class SummaryAdmin(admin.ModelAdmin):
+  class NoticeAdmin(admin.ModelAdmin):
       list_display = ("office", "program", "category", "amount")
       list_filter = ("category", "program")
 
@@ -643,9 +541,9 @@ And now a search.
   :emphasize-lines: 7
 
   from django.contrib import admin
-  from expenses.models import Summary
+  from foreclosures.models import Summary
 
-  class SummaryAdmin(admin.ModelAdmin):
+  class NoticeAdmin(admin.ModelAdmin):
       list_display = ("office", "program", "category", "amount")
       list_filter = ("category", "program")
       search_fields = ("program",)
@@ -662,9 +560,9 @@ Take a moment to search, filter and sort the list to see how things work. Now we
   :emphasize-lines: 2, 8-11, 13
 
   from django.contrib import admin
-  from expenses.models import Summary, Detail
+  from foreclosures.models import Summary, Detail
 
-  class SummaryAdmin(admin.ModelAdmin):
+  class NoticeAdmin(admin.ModelAdmin):
       list_display = ("office", "program", "category", "amount")
       list_filter = ("category", "program")
       search_fields = ("program",)
@@ -683,16 +581,16 @@ Act 5: Hello Views (and Templates)
 
 Now you're ready to show your data to people who can't (and shouldn't) login to your Django app. We do that using ``views``, which are invoked when a specific URL is loaded.
 
-Open expenses/views.py and put the following code in it:
+Open foreclosures/views.py and put the following code in it:
 
 .. code-block:: python
 
   from django.http import HttpResponse
 
   def index(request):
-    return HttpResponse("Hello, world. You're at the expenses index.")
+    return HttpResponse("Hello, world. You're at the foreclosures index.")
 
-This is the simplest view we can write. When that view is triggered, it will return that text to the browser just as it is. But we need to tie it to a specific url. For that we can create a new file in the expenses directory called ``urls.py`` and add the following code to it:
+This is the simplest view we can write. When that view is triggered, it will return that text to the browser just as it is. But we need to tie it to a specific url. For that we can create a new file in the foreclosures directory called ``urls.py`` and add the following code to it:
 
 .. code-block:: python
 
@@ -704,7 +602,7 @@ This is the simplest view we can write. When that view is triggered, it will ret
     path('', views.index, name='index'),
   ]
 
-This first imports a function that helps Django connect urls to views. It then imports the contents of our views.py file and finally defines a pattern: if a user goes to the root url, that means that the ``index`` view gets called. All of that occurs in project/expenses/urls.py.
+This first imports a function that helps Django connect urls to views. It then imports the contents of our views.py file and finally defines a pattern: if a user goes to the root url, that means that the ``index`` view gets called. All of that occurs in project/foreclosures/urls.py.
 
 But we have more urls for our project, including the admin urls. Check out the ``urls.py`` in the project/project directory, and add this to it:
 
@@ -715,36 +613,36 @@ But we have more urls for our project, including the admin urls. Check out the `
   from django.urls import include, path
 
   urlpatterns = [
-    path('expenses/', include('expenses.urls')),
+    path('foreclosures/', include('foreclosures.urls')),
     path('admin/', admin.site.urls),
   ]
 
-This ``urls.py`` organizes _all_ of the urls we could have for this entire project (we might decide to get expansive and include other congressional data). We _include_ the url we defined that is specific to the expenses app.
+This ``urls.py`` organizes _all_ of the urls we could have for this entire project (we might decide to get expansive and include other congressional data). We _include_ the url we defined that is specific to the foreclosures app.
 
-Now go to http://127.0.0.1:8000/expenses/
+Now go to http://127.0.0.1:8000/foreclosures/
 
-.. image:: /_static/hello-expenses.png
+.. image:: /_static/hello-foreclosures.png
 
 Now let's make a better index view, one that tells us a little more about the objects we've saved in our database.
 
-Open expenses/views.py and put the following code in it:
+Open foreclosures/views.py and put the following code in it:
 
 .. code-block:: python
   :emphasize-lines: 3,6
 
   from django.http import HttpResponse
-  from expenses.models import Summary, Detail
+  from foreclosures.models import Summary, Detail
 
   def index(request):
     total_summaries = Summary.objects.count()
     total_detail = Detail.objects.count()
-    return HttpResponse(f"Hello, world. You're at the expenses index and there are {total_summaries} summary records and {total_detail} records in the database.")
+    return HttpResponse(f"Hello, world. You're at the foreclosures index and there are {total_summaries} summary records and {total_detail} records in the database.")
 
-Now go to http://127.0.0.1:8000/expenses/ and see that we've counted the number of summary and detail objects and sent that to the browser, thanks to string interpolation. There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let's use Django's template system to separate the design from Python by creating a template that the view can use.
+Now go to http://127.0.0.1:8000/foreclosures/ and see that we've counted the number of summary and detail objects and sent that to the browser, thanks to string interpolation. There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let's use Django's template system to separate the design from Python by creating a template that the view can use.
 
-First, create a directory called templates in your expenses directory. Django will look for templates in there.
+First, create a directory called templates in your foreclosures directory. Django will look for templates in there.
 
-Within the templates directory you have just created, create another directory called expenses, and within that create a file called index.html. In other words, your template should be at expenses/templates/expenses/index.html. Because of how the app_directories template loader works, you can refer to this template within Django as expenses/index.html.
+Within the templates directory you have just created, create another directory called foreclosures, and within that create a file called index.html. In other words, your template should be at foreclosures/templates/foreclosures/index.html. Because of how the app_directories template loader works, you can refer to this template within Django as foreclosures/index.html.
 
 Put the following code in that template:
 
@@ -758,22 +656,22 @@ Put the following code in that template:
     </body>
   </html>
 
-Now we need to tell the index view in views.py to use this template. Open expenses/views.py and put the following code in it:
+Now we need to tell the index view in views.py to use this template. Open foreclosures/views.py and put the following code in it:
 
 .. code-block:: python
   :emphasize-lines: 2,8
 
   from django.shortcuts import render
-  from expenses.models import Summary, Detail
+  from foreclosures.models import Summary, Detail
 
   def index(request):
     total_summaries = Summary.objects.count()
     total_detail = Detail.objects.count()
-    return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+    return render(request, 'foreclosures/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
 
 Here we are using Django's `render` shortcut to send all the information we need to the template we made, including how to refer to the objects we've created.
 
-Let's update our template. Open expenses/templates/expenses/index.html and add the following:
+Let's update our template. Open foreclosures/templates/foreclosures/index.html and add the following:
 
 .. code-block:: jinja
   :emphasize-lines: 7
@@ -798,21 +696,21 @@ The `python manage.py shell` command gives us access to all of the objects defin
 
 .. code-block:: python
 
-  >>> from expenses.models import Summary, Detail
+  >>> from foreclosures.models import Summary, Detail
   >>> summary = Summary.objects.all()[0]
   >>> summary
   <Summary: Summary object (1)>
   >>> summary.program
   'OFFICIAL EXPENSES - LEADERSHIP'
 
-That `<Summary: Summary object (1)>` line isn't helpful, however. We can fix that back in `models.py` by adding a method to Summary and Detail. Switch to your expenses/models.py and add the following lines:
+That `<Summary: Summary object (1)>` line isn't helpful, however. We can fix that back in `models.py` by adding a method to Summary and Detail. Switch to your foreclosures/models.py and add the following lines:
 
 .. code-block:: python
   :emphasize-lines: 14-15,34-35
 
   from django.db import models
 
-  class Summary(models.Model):
+  class Notice(models.Model):
       bioguide_id = models.CharField(max_length=7)
       office = models.CharField(max_length=500)
       program = models.CharField(max_length=500)
@@ -850,7 +748,7 @@ It’s important to add __str__() methods to your models, not only for your own 
 .. code-block:: python
   :emphasize-lines: 5,8
 
-  >>> from expenses.models import Summary, Detail
+  >>> from foreclosures.models import Summary, Detail
   >>> summary = Summary.objects.all()[0]
   >>> summary
   <Summary: SUPPLIES AND MATERIALS>
@@ -863,7 +761,7 @@ Using ``Model.objects.all()`` isn't great, though, because it pulls in every row
 .. code-block:: python
   :emphasize-lines: 3,6-8
 
-  >>> from expenses.models import Summary, Detail
+  >>> from foreclosures.models import Summary, Detail
   >>> summary = Summary.objects.get(id=1)
   >>> summary
   <Summary: SUPPLIES AND MATERIALS>
@@ -884,16 +782,16 @@ We have an index page for our app, but what about pages for displaying individua
   :emphasize-lines: 2,10-12
 
   from django.shortcuts import render, get_object_or_404
-  from expenses.models import Summary, Detail
+  from foreclosures.models import Summary, Detail
 
   def index(request):
     total_summaries = Summary.objects.count()
     total_detail = Detail.objects.count()
-    return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+    return render(request, 'foreclosures/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
 
   def summary(request, summary_id):
     summary = Summary.objects.get(id=summary_id)
-    return render(request, 'expenses/summary.html', {'summary': summary})
+    return render(request, 'foreclosures/summary.html', {'summary': summary})
 
 This will do a simple lookup based on a numeric id for a Summary object, which is provided from the request's URL. That means we'll need to design a url in urls.py for this:
 
@@ -910,7 +808,7 @@ This will do a simple lookup based on a numeric id for a Summary object, which i
     path('summary/<int:summary_id>/', views.summary, name='summary'),
   ]
 
-That connects a URL in the form of /summary/1/ to the summary function in views.py. Then we'll need a template to handle that, so let's add a `summary.html` file to our templates/expenses/ directory and populate it with this:
+That connects a URL in the form of /summary/1/ to the summary function in views.py. Then we'll need a template to handle that, so let's add a `summary.html` file to our templates/foreclosures/ directory and populate it with this:
 
 .. code-block:: html
 
@@ -927,12 +825,12 @@ That connects a URL in the form of /summary/1/ to the summary function in views.
         </body>
     </html>
 
-Save that and head to http://127.0.0.1:8000/expenses/summary/1/.
+Save that and head to http://127.0.0.1:8000/foreclosures/summary/1/.
 
 Act 8: Models and Slugs
 -----------------------
 
-While the URL above is useful, it's not particularly informative, and part of Django's core philosophy is meaningful URLs. In order to demonstrate this, let's create a new model for category, an attribute of both the Summary and Detail models. Put this at the top of your expenses/models.py file:
+While the URL above is useful, it's not particularly informative, and part of Django's core philosophy is meaningful URLs. In order to demonstrate this, let's create a new model for category, an attribute of both the Summary and Detail models. Put this at the top of your foreclosures/models.py file:
 
 .. code-block:: python
     :emphasize-lines: 4-9
@@ -950,16 +848,16 @@ There are two new things here. First is the "unique=True" constraint we're putti
 
 .. code-block:: bash
 
-    $ python manage.py makemigrations expenses
-    $ python manage.py migrate expenses
+    $ python manage.py makemigrations foreclosures
+    $ python manage.py migrate foreclosures
 
-We'll need to add a loader to populate the Category model with data, and we can use the summary.csv to do that. In expenses/management/commands, create load_category.py and put this in it:
+We'll need to add a loader to populate the Category model with data, and we can use the summary.csv to do that. In foreclosures/management/commands, create load_category.py and put this in it:
 
 .. code-block:: python
     :emphasize-lines: 4
 
     import csv
-    from expenses.models import Category
+    from foreclosures.models import Category
     from django.template.defaultfilters import slugify
     from django.core.management.base import BaseCommand
 
@@ -987,7 +885,7 @@ And we get an error. Specifically, the loader tried to create a Category object 
     :emphasize-lines: 16
 
     import csv
-    from expenses.models import Category
+    from foreclosures.models import Category
     from django.template.defaultfilters import slugify
     from django.core.management.base import BaseCommand
 
@@ -1011,7 +909,7 @@ Now we can run the loader again:
 
     $ python manage.py load_category
 
-And this time the loader runs properly and doesn't raise an error. Now we can use the slugs created by the loader in designing urls. In expenses/urls.py, add the following lines:
+And this time the loader runs properly and doesn't raise an error. Now we can use the slugs created by the loader in designing urls. In foreclosures/urls.py, add the following lines:
 
 .. code-block:: python
     :emphasize-lines: 8-9
@@ -1027,31 +925,31 @@ And this time the loader runs properly and doesn't raise an error. Now we can us
         path('summary/<int:summary_id>/', views.summary, name='summary'),
     ]
 
-This creates URLs for a main page for categories and a detail page for each category, the latter using a slug. Next, in expenses/views.py, add the following:
+This creates URLs for a main page for categories and a detail page for each category, the latter using a slug. Next, in foreclosures/views.py, add the following:
 
 .. code-block:: python
     :emphasize-lines: 3, 14-19
 
     from django.shortcuts import render, get_object_or_404
-    from expenses.models import Summary, Detail, Category
+    from foreclosures.models import Summary, Detail, Category
 
     def index(request):
       total_summaries = Summary.objects.count()
       total_detail = Detail.objects.count()
-      return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+      return render(request, 'foreclosures/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
 
     def summary(request, summary_id):
       summary = Summary.objects.get(id=summary_id)
-      return render(request, 'expenses/summary.html', {'summary': summary})
+      return render(request, 'foreclosures/summary.html', {'summary': summary})
 
     def categories(request):
       categories = Category.objects.all().order_by('name')
-      return render(request, 'expenses/categories.html', {'categories': categories})
+      return render(request, 'foreclosures/categories.html', {'categories': categories})
 
     def category_detail(request):
         pass
 
-We'll start with the categories view, which fetches all of our Category objects and returns them to a template. Except we need to make that template, so in expenses/templates/expenses create categories.html and put this inside:
+We'll start with the categories view, which fetches all of our Category objects and returns them to a template. Except we need to make that template, so in foreclosures/templates/foreclosures create categories.html and put this inside:
 
 .. code-block:: html
 
@@ -1080,7 +978,7 @@ Here we loop over the list of Category objects and create a link for each one. N
 
     $ python manage.py runserver
 
-And heading to http://127.0.0.1:8000/expenses/categories/ will get you a page listing all of the categories in alphabetical order, along with a link to each. That's pretty good, but the names are in all-caps. We can fix that using one of Django's built-in template tags. In the categories.html template, change this line:
+And heading to http://127.0.0.1:8000/foreclosures/categories/ will get you a page listing all of the categories in alphabetical order, along with a link to each. That's pretty good, but the names are in all-caps. We can fix that using one of Django's built-in template tags. In the categories.html template, change this line:
 
 .. code-block:: html
     :emphasize-lines: 11
@@ -1106,34 +1004,34 @@ And heading to http://127.0.0.1:8000/expenses/categories/ will get you a page li
 
 That changes each name to be titlecase. Go back to the browser and hit reload to see the results. Much better.
 
-Now let's make those category links show something. In your expenses/views.py file, add the following to the category_detail function:
+Now let's make those category links show something. In your foreclosures/views.py file, add the following to the category_detail function:
 
 .. code-block:: python
     :emphasize-lines: 19-23
 
     from django.shortcuts import render, get_object_or_404
-    from expenses.models import Summary, Detail, Category
+    from foreclosures.models import Summary, Detail, Category
 
     def index(request):
       total_summaries = Summary.objects.count()
       total_detail = Detail.objects.count()
-      return render(request, 'expenses/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
+      return render(request, 'foreclosures/index.html', context={'total_summaries': total_summaries, 'total_detail': total_detail})
 
     def summary(request, summary_id):
       summary = Summary.objects.get(id=summary_id)
-      return render(request, 'expenses/summary.html', {'summary': summary})
+      return render(request, 'foreclosures/summary.html', {'summary': summary})
 
     def categories(request):
       categories = Category.objects.all().order_by('name')
-      return render(request, 'expenses/categories.html', {'categories': categories})
+      return render(request, 'foreclosures/categories.html', {'categories': categories})
 
     def category_detail(request, slug):
       category = get_object_or_404(Category, slug=slug)
       category_summary = Summary.objects.filter(category=category.name).count()
       category_detail = Detail.objects.filter(category=category.name).count()
-      return render(request, 'expenses/category_detail.html', {'category': category, 'category_summary': category_summary, 'category_detail': category_detail})
+      return render(request, 'foreclosures/category_detail.html', {'category': category, 'category_summary': category_summary, 'category_detail': category_detail})
 
-Now create the expenses/templates/expenses/category_detail.html template and put the following in it:
+Now create the foreclosures/templates/foreclosures/category_detail.html template and put the following in it:
 
 .. code-block:: html
 
@@ -1149,4 +1047,4 @@ Now create the expenses/templates/expenses/category_detail.html template and put
       </body>
     </html>
 
-Now fire up the server and go to http://127.0.0.1:8000/expenses/categories/franked-mail/
+Now fire up the server and go to http://127.0.0.1:8000/foreclosures/categories/franked-mail/
